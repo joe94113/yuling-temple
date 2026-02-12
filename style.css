@@ -60,3 +60,39 @@ body { background-color: #050505; color: #e0e0e0; font-family: 'Noto Serif TC', 
 #admin-panel { display: none; background: rgba(0,0,0,0.85); border: 2px solid #8b0000; box-shadow: 0 0 25px rgba(139,0,0,0.6); }
 .mood-angry { animation: angry-glow 0.8s infinite !important; border-color: red !important; }
 @keyframes angry-glow { 0%, 100% { box-shadow: 0 0 10px red; } 50% { box-shadow: 0 0 40px red; } }
+
+/* 修改 #wish-tree-area */
+#wish-tree-area {
+    min-height: 600px;
+    position: relative; /* 關鍵：讓內部的 SVG 可以絕對定位 */
+    
+    /* 保持原本的 Flex 設定 */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 50px; 
+    padding-bottom: 50px;
+    
+    background-color: rgba(20, 20, 20, 0.3);
+    border-radius: 30px;
+    border: 1px solid rgba(255, 215, 0, 0.1);
+    box-shadow: inset 0 0 100px rgba(255, 215, 0, 0.1);
+    overflow: hidden; /* 防止樹長出框框 */
+}
+
+/* 新增：D3 樹的樣式 */
+#tree-svg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0; /* 放在最底層 */
+    pointer-events: none; /* 讓滑鼠可以穿透樹去點許願牌 */
+}
+
+/* 確保許願牌在樹的前面 */
+.wish-tag {
+    z-index: 10; 
+}

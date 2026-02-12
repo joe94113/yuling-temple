@@ -388,6 +388,8 @@ onValue(query(ref(db, "wishes"), limitToLast(12)), (snap) => {
             const el = document.createElement("div");
             el.className = "wish-tag";
             el.innerText = w.text;
+            const randomDeg = Math.floor(Math.random() * 11) - 5;
+            el.style.setProperty("--rotation", `${randomDeg}deg`);
             el.onclick = () => Swal.fire({ title: "🎋 願望詳情", text: w.text });
             tree.appendChild(el);
         });
@@ -411,3 +413,129 @@ window.previewPhoto = (e) => {
     r.onload = (ev) => (document.getElementById("saint-photo").src = ev.target.result);
     r.readAsDataURL(e.target.files[0]);
 };
+// --- 🌳 D3.js 賽博碎形樹生成器 ---
+const initCyberTree = () => {
+    // 1. 確保 D3 已載入
+    if (typeof d3 === "undefined") {
+        console.error("D3.js 尚未載入，請檢查 head 標籤");
+        return;
+    }
+
+    const container = document.getElementById("wish-tree-area");
+    if (!container) return;
+
+    // 取得容器實際尺寸
+    const width = container.clientWidth;
+    const height = container.clientHeight || 600; // 如果高度抓不到，給預設值
+
+    // 清除舊的 SVG
+    d3.select("#wish-tree-area svg").remove();
+
+    // 2. 建立畫布
+    const svg = d3
+        .select("#wish-tree-area")
+        .append("svg")
+        .attr("id", "tree-svg")
+        .attr("width", width)
+        .attr("height", height)
+        .style("position", "absolute")
+        .style("bottom", "0")
+        .style("left", "0")
+        .style("pointer-events", "none"); // 讓點擊穿透
+
+    // 3. 定義金色發光濾鏡 (只定義一次)
+    const defs = svg.append("defs");
+    const filter = defs.append("filter").attr("id", "glow");
+    filter.append("feGaussianBlur").attr("stdDeviation", "2").attr("result", "coloredBlur");
+    const feMerge = filter.append("feMerge");
+    feMerge.append("feMergeNode").attr("in", "coloredBlur");
+    feMerge.append("feMergeNode").attr("in", "SourceGraphic");
+
+    // 4. 建立一個群組來放樹，並將濾鏡套用在群組上 (效能關鍵！)
+    const treeGroup = svg.append("g").style("filter", "url(#glow)");
+
+    // 5. 樹的參數設定 (稍微降低深度以提升效能)
+    const maxDepth = 9; // 降為 9 (原本 10)，線條數減半，流暢度大增
+    const branchAngle = 22; // 分枝角度
+    const startLength = height * 0.22; // 樹幹長度
+
+    // 6. 遞迴畫樹函式
+    function drawBranch(x1, y1, angle, depth, length) {
+        if (depth === 0) return;
+
+        const x2 = x1 + Math.cos((angle * Math.PI) / 180) * length;
+        const y2 = y1 - Math.sin((angle * Math.PI) / 180) * length;
+
+        // 繪製線條
+        treeGroup
+            .append("line")
+            .attr("x1", x1)
+            .attr("y1", y1)
+            .attr("x2", x1) // 動畫初始位置
+            .attr("y2", y1) // 動畫初始位置
+            .attr("stroke", "#ffd700")
+            .attr("stroke-width", depth < 2 ? 1 : depth * 0.6) // 末端細一點
+            .attr("stroke-opacity", 0.7)
+            .attr("stroke-linecap", "round")
+            .transition() // --- 生長動畫 ---
+            .duration(600) // 動畫時間縮短一點，感覺更俐落
+            .delay((maxDepth - depth) * 150)
+            .ease(d3.easeCubicOut)
+            .attr("x2", x2)
+            .attr("y2", y2);
+
+        // 遞迴呼叫
+        const randomAngle = (Math.random() - 0.5) * 20; // 增加隨機性
+        const randomShrink = 0.75 + Math.random() * 0.1;
+
+        drawBranch(x2, y2, angle - branchAngle + randomAngle, depth - 1, length * randomShrink);
+        drawBranch(x2, y2, angle + branchAngle + randomAngle, depth - 1, length * randomShrink);
+    }
+
+    // 7. 開始種樹
+    drawBranch(width / 2, height, 90, maxDepth, startLength);
+};
+
+// --- 🌲 捲動觸發監聽 (Intersection Observer) ---
+let hasTreeGrown = false;
+
+const setupScrollObserver = () => {
+    const target = document.getElementById("wish-tree-area");
+    if (!target) return;
+
+    const observer = new IntersectionObserver(
+        (entries, obs) => {
+            entries.forEach((entry) => {
+                // 當元素進入畫面，且還沒長過樹
+                if (entry.isIntersecting && !hasTreeGrown) {
+                    hasTreeGrown = true; // 標記已生長
+
+                    // 稍微延遲一下，讓使用者定睛後再開始長
+                    setTimeout(() => {
+                        initCyberTree();
+                    }, 200);
+
+                    obs.unobserve(entry.target); // 任務完成，停止監聽 (節省效能)
+                }
+            });
+        },
+        {
+            root: null, // 視窗本身
+            threshold: 0.3, // 關鍵設定：當區塊露出 30% 時觸發
+        },
+    );
+
+    observer.observe(target);
+};
+
+// 頁面載入後啟動觀察器
+window.addEventListener("load", setupScrollObserver);
+
+// 視窗縮放時重畫
+let resizeTimer;
+window.addEventListener("resize", () => {
+    if (hasTreeGrown) {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(initCyberTree, 500);
+    }
+});
