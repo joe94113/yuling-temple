@@ -306,28 +306,44 @@ window.toggleBirthdayMode = () => {
     if (document.getElementById("main-body").classList.toggle("theme-birthday"))
         confetti({ particleCount: 200, spread: 80, origin: { y: 0.7 } });
 };
+// --- 🏆 供奉獻禮 ---
 window.addOffering = async () => {
     const { value: f } = await Swal.fire({
         title: "供奉禮物",
-        html: '<input id="i1" class="swal2-input" placeholder="大名"><input id="i2" class="swal2-input" placeholder="禮物">',
+        html: `
+            <div style="display: flex; flex-direction: column; gap: 15px; width: 100%; padding: 0 10px; box-sizing: border-box;">
+                <input id="i1" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="大名">
+                <input id="i2" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="禮物">
+            </div>
+        `,
+        preConfirm: () => [
+            document.getElementById("i1").value,
+            document.getElementById("i2").value,
+        ],
     });
-    if (f && f[0])
-        push(ref(db, "offerings"), {
-            name: document.getElementById("i1").value,
-            gift: document.getElementById("i2").value,
-            time: Date.now(),
-        });
+    if (f && f[0]) push(ref(db, "offerings"), { name: f[0], gift: f[1], time: Date.now() });
 };
+
+// --- 🎂 親友祝壽 ---
 window.sendBlessing = async () => {
     const { value: f } = await Swal.fire({
         title: "送上祝福",
-        html: '<input id="b1" class="swal2-input" placeholder="姓名"><input id="b2" class="swal2-input" placeholder="祝福語">',
-        preConfirm: () => [
-            document.getElementById("b1").value,
-            document.getElementById("b2").value,
-        ],
+        html: `
+            <div style="display: flex; flex-direction: column; gap: 15px; width: 100%; padding: 0 10px; box-sizing: border-box;">
+                <input id="b1" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="親友姓名">
+                <input id="b2" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="想說的話">
+            </div>
+        `,
+        preConfirm: () => {
+            const name = document.getElementById("b1").value;
+            const msg = document.getElementById("b2").value;
+            if (!name || !msg) {
+                Swal.showValidationMessage("請完整填寫姓名與祝福語！");
+            }
+            return [name, msg];
+        },
     });
-    if (f && f[0]) push(ref(db, "blessings"), { name: f[0], msg: f[1] });
+    if (f && f[0]) push(ref(db, "blessings"), { name: f[0], msg: f[1], time: Date.now() });
 };
 onValue(query(ref(db, "blessings"), limitToLast(6)), (snap) => {
     const wall = document.getElementById("blessing-wall");
