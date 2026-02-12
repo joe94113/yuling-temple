@@ -101,6 +101,7 @@ const getTitle = (count) => {
     return { t: "凡人信徒", c: "rank-norm" };
 };
 
+// --- 2. 功德榜 & 供奉 & 供奉明細 ---
 onValue(ref(db, "offerings"), (snap) => {
     const list = document.getElementById("leaderboard-list");
     const marquee = document.getElementById("marquee-content");
@@ -132,29 +133,31 @@ onValue(ref(db, "offerings"), (snap) => {
             .join("");
 
         // 2. 跑馬燈
+        const recentData = [...data].reverse();
         let txt = "🏮 郁靈聖宮開聖門 🏮 ";
-        data.reverse()
-            .slice(0, 5)
-            .forEach((o) => (txt += `【 ${o.name} 供奉了 ${o.gift} 】 🏮 `));
+        recentData.slice(0, 5).forEach((o) => (txt += `【 ${o.name} 供奉了 ${o.gift} 】 🏮 `));
         marquee.innerText = txt;
 
-        // 3. 供奉明細列表 (取最後 50 筆)
+        // 3. 供奉明細列表
         detailList.innerHTML = "";
-        // data 已經 reverse 過了 (最新的在前)
-        data.slice(0, 50).forEach((o) => {
-            const date = o.time
-                ? new Date(o.time).toLocaleString("zh-TW", {
-                      month: "numeric",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                  })
-                : "剛剛";
+        recentData.slice(0, 50).forEach((o) => {
+            let timeDisplay = "早期"; // 預設顯示文字
+
+            if (o.time) {
+                const d = new Date(o.time);
+                // 格式化為：2/24 15:30
+                const month = d.getMonth() + 1;
+                const date = d.getDate();
+                const hour = d.getHours().toString().padStart(2, "0");
+                const min = d.getMinutes().toString().padStart(2, "0");
+                timeDisplay = `${month}/${date} ${hour}:${min}`;
+            }
+
             detailList.innerHTML += `
-                        <tr class="hover:bg-white/5 transition">
-                            <td class="py-2 pl-2 text-zinc-500 text-xs">${date}</td>
-                            <td class="py-2 font-bold text-zinc-300">${o.name}</td>
-                            <td class="py-2 text-yellow-500">${o.gift}</td>
+                        <tr class="hover:bg-white/5 transition border-b border-zinc-800/50">
+                            <td class="py-3 pl-2 text-zinc-500 text-xs font-mono">${timeDisplay}</td>
+                            <td class="py-3 font-bold text-zinc-300">${o.name}</td>
+                            <td class="py-3 text-yellow-500">${o.gift}</td>
                         </tr>
                     `;
         });
