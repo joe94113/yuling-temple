@@ -34,7 +34,7 @@ window.adminAction = async (cb) => {
     }
     const { value: pw } = await Swal.fire({
         title: "🔑 聖殿密鑰驗證",
-        html: '此處為聖殿禁區<br><small style="color: #888;">管理員請輸入 0224 解除封印</small>',
+        html: '此處為聖殿禁區<br><small style="color: #888;">管理員請輸入 密碼 解除封印</small>',
         input: "password",
         confirmButtonText: "解除封印",
         inputAttributes: { autocapitalize: "off", autocorrect: "off" },
