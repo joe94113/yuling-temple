@@ -1,0 +1,58 @@
+:root { --glow: #ffd700; }
+body { background-color: #050505; color: #e0e0e0; font-family: 'Noto Serif TC', serif; transition: all 1s ease; overflow-x: hidden; }
+
+/* 1. 晝夜與模式樣式 */
+.theme-day { background: radial-gradient(circle at center, #2c1a0a 0%, #050505 100%); --glow: #ffd700; }
+.theme-night { background: radial-gradient(circle at center, #1a0a2c 0%, #050505 100%); --glow: #bc13fe; }
+.theme-birthday { background: radial-gradient(circle at center, #5b0000 0%, #050505 100%); --glow: #ff4500; }
+
+.temple-font { font-family: 'Ma Shan Zheng', cursive; }
+.gold-text { color: var(--glow); text-shadow: 0 0 10px var(--glow); }
+.writing-vertical { writing-mode: vertical-rl; text-orientation: upright; letter-spacing: 0.6rem; }
+
+/* 2. 跑馬燈 CSS */
+.marquee-container { background: rgba(139, 0, 0, 0.4); border-bottom: 2px solid #ffd700; overflow: hidden; white-space: nowrap; height: 36px; line-height: 36px; }
+.marquee-text { display: inline-block; padding-left: 100%; animation: marquee-scroll 25s linear infinite; color: #ffd700; font-weight: bold; }
+@keyframes marquee-scroll { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+
+/* 3. 煙霧粒子特效 */
+.smoke-particle { position: absolute; background: rgba(220, 220, 220, 0.3); border-radius: 50%; filter: blur(15px); pointer-events: none; z-index: 100; animation: smoke-float forwards ease-out; }
+@keyframes smoke-float { 0% { transform: translateY(0) scale(1); opacity: 0; } 20% { opacity: 0.6; } 100% { transform: translateY(-200px) translateX(30px) scale(5); opacity: 0; } }
+
+/* 功德文字特效 */
+.merit-text { position: absolute; font-weight: bold; color: #ffd700; pointer-events: none; animation: float-up 1s ease-out forwards; z-index: 150; text-shadow: 0 0 5px #000; }
+@keyframes float-up { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-100px) scale(1.2); opacity: 0; } }
+
+/* 4. 紅絲綢許願牌 */
+.wish-tag { width: 45px; min-height: 150px; padding: 15px 5px; margin: 15px; writing-mode: vertical-rl; text-orientation: upright; color: #ffd700; font-weight: 900; border-radius: 2px; cursor: pointer; background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%); border-top: 4px solid #ffd700; box-shadow: 5px 10px 20px rgba(0,0,0,0.8); animation: sway 4s ease-in-out infinite; transition: 0.3s; position: relative; }
+.wish-tag::after { content: ""; position: absolute; top: -15px; left: 50%; width: 2px; height: 15px; background: #ffd700; }
+@keyframes sway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+
+/* 5. UI 組件與面板 */
+.photo-container { position: relative; padding: 10px; border-radius: 20px; transition: 0.5s; background: #111; }
+.aura-1 { border: 2px solid #555; box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); }
+.aura-2 { border: 3px solid #ffd700; box-shadow: 0 0 40px rgba(255, 215, 0, 0.6); }
+.aura-3 { border: 4px solid #fff; animation: rainbow-glow 3s linear infinite; }
+@keyframes rainbow-glow {
+    0% { box-shadow: 0 0 30px #ff0000; border-color: #ff0000; }
+    33% { box-shadow: 0 0 50px #ffd700; border-color: #ffd700; }
+    66% { box-shadow: 0 0 40px #00ffff; border-color: #00ffff; }
+    100% { box-shadow: 0 0 30px #ff0000; border-color: #ff0000; }
+}
+
+.title-badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-right: 5px; font-weight: bold; }
+.rank-norm { background: #555; color: white; }
+.rank-devout { background: #3b82f6; color: white; }
+.rank-chief { background: #eab308; color: black; }
+.rank-god { background: linear-gradient(90deg, #ff0000, #ffff00); color: black; }
+
+.blessing-lamp { animation: breathe 2.5s ease-in-out infinite; background: rgba(255, 215, 0, 0.05); border: 1px solid #ffd700; }
+@keyframes breathe { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; box-shadow: 0 0 15px #ffd700; } }
+
+.btn-temple { background: rgba(20,20,20,0.8); border: 1px solid #444; color: #aaa; transition: 0.3s; padding: 12px 24px; border-radius: 999px; font-weight: bold; }
+.btn-temple:hover { border-color: var(--glow); color: var(--glow); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+.swal2-popup { background: #1a1a1a !important; color: #ffd700 !important; border: 1px solid #8b0000 !important; }
+
+#admin-panel { display: none; background: rgba(0,0,0,0.85); border: 2px solid #8b0000; box-shadow: 0 0 25px rgba(139,0,0,0.6); }
+.mood-angry { animation: angry-glow 0.8s infinite !important; border-color: red !important; }
+@keyframes angry-glow { 0%, 100% { box-shadow: 0 0 10px red; } 50% { box-shadow: 0 0 40px red; } }

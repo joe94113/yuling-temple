@@ -1,113 +1,59 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>郁靈聖宮 - 賽博總本山</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+TC:wght@700;900&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <style>
-        :root { --glow: #ffd700; }
-        body { background-color: #050505; color: #e0e0e0; font-family: 'Noto Serif TC', serif; transition: all 1s ease; overflow-x: hidden; }
-        
-        /* 1. 晝夜與模式樣式 */
-        .theme-day { background: radial-gradient(circle at center, #2c1a0a 0%, #050505 100%); --glow: #ffd700; }
-        .theme-night { background: radial-gradient(circle at center, #1a0a2c 0%, #050505 100%); --glow: #bc13fe; }
-        .theme-birthday { background: radial-gradient(circle at center, #5b0000 0%, #050505 100%); --glow: #ff4500; }
-        
-        .temple-font { font-family: 'Ma Shan Zheng', cursive; }
-        .gold-text { color: var(--glow); text-shadow: 0 0 10px var(--glow); }
-        .writing-vertical { writing-mode: vertical-rl; text-orientation: upright; letter-spacing: 0.6rem; }
-
-        /* 2. 跑馬燈 CSS */
-        .marquee-container { background: rgba(139, 0, 0, 0.4); border-bottom: 2px solid #ffd700; overflow: hidden; white-space: nowrap; height: 36px; line-height: 36px; }
-        .marquee-text { 
-            display: inline-block; 
-            padding-left: 100%; 
-            animation: marquee-scroll 25s linear infinite; 
-            color: #ffd700; 
-            font-weight: bold;
-        }
-        @keyframes marquee-scroll {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(-100%, 0); }
-        }
-
-        /* 3. 煙霧粒子特效 */
-        .smoke-particle {
-            position: absolute;
-            background: rgba(220, 220, 220, 0.3);
-            border-radius: 50%;
-            filter: blur(15px);
-            pointer-events: none;
-            z-index: 100;
-            animation: smoke-float forwards ease-out;
-        }
-        @keyframes smoke-float {
-            0% { transform: translateY(0) scale(1); opacity: 0; }
-            20% { opacity: 0.6; }
-            100% { transform: translateY(-200px) translateX(30px) scale(5); opacity: 0; }
-        }
-
-        /* 4. 紅絲綢許願牌 */
-        .wish-tag { 
-            width: 45px; min-height: 150px; padding: 15px 5px; margin: 15px; 
-            writing-mode: vertical-rl; text-orientation: upright; 
-            color: #ffd700; font-weight: 900; border-radius: 2px; cursor: pointer;
-            background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%); 
-            border-top: 4px solid #ffd700; box-shadow: 5px 10px 20px rgba(0,0,0,0.8);
-            animation: sway 4s ease-in-out infinite; transition: 0.3s;
-            position: relative;
-        }
-        .wish-tag::after { content: ""; position: absolute; top: -15px; left: 50%; width: 2px; height: 15px; background: #ffd700; }
-        @keyframes sway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
-
-        /* 5. UI 組件與面板 */
-        .photo-container { position: relative; padding: 10px; border-radius: 20px; border: 2px solid var(--glow); box-shadow: 0 0 30px var(--glow); background: #111; }
-        .blessing-lamp { animation: breathe 2.5s ease-in-out infinite; background: rgba(255, 215, 0, 0.05); border: 1px solid #ffd700; }
-        @keyframes breathe { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; box-shadow: 0 0 15px #ffd700; } }
-        
-        .btn-temple { background: rgba(20,20,20,0.8); border: 1px solid #444; color: #aaa; transition: 0.3s; padding: 12px 24px; border-radius: 999px; font-weight: bold; }
-        .btn-temple:hover { border-color: var(--glow); color: var(--glow); }
-        .swal2-popup { background: #1a1a1a !important; color: #ffd700 !important; border: 1px solid #8b0000 !important; }
-
-        #admin-panel { display: none; background: rgba(0,0,0,0.85); border: 2px solid #8b0000; box-shadow: 0 0 25px rgba(139,0,0,0.6); }
-        @keyframes angry-glow { 0%, 100% { border-color: #ff0000; box-shadow: 0 0 10px #ff0000; } 50% { border-color: #ff5555; box-shadow: 0 0 40px #ff0000; } }
-        .mood-angry { animation: angry-glow 0.8s infinite !important; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="flex flex-col items-center theme-day" id="main-body">
 
     <audio id="bell-sound" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+    <audio id="wood-sound" src="https://assets.mixkit.co/active_storage/sfx/2397/2397-preview.mp3"></audio>
 
     <div class="marquee-container w-full">
-        <p id="marquee-content" class="marquee-text">🏮 歡迎來到郁靈聖宮 🏮 聖君開示：心誠則靈 🏮 正在感知天地靈氣...</p>
+        <p id="marquee-content" class="marquee-text">🏮 歡迎來到郁靈聖宮 🏮 聖君開示：心誠則靈 🏮 載入中...</p>
     </div>
 
     <div class="w-full max-w-5xl p-4 text-[10px] gold-text font-bold tracking-widest text-right">
         <span id="current-time-display">CLOCK // LOADING...</span>
     </div>
 
-    <header id="main-shrine" class="w-full max-w-4xl mt-4 mb-12 text-center relative px-4 transition-all duration-1000">
-        <div class="inline-block bg-red-800 px-12 py-3 rounded-t-3xl border-x-4 border-t-4 border-yellow-500 shadow-2xl">
+    <header id="main-shrine" class="w-full max-w-4xl mt-2 mb-12 text-center relative px-4 transition-all duration-1000">
+        <div
+            class="inline-block bg-red-800 px-12 py-3 rounded-t-3xl border-x-4 border-t-4 border-yellow-500 shadow-2xl z-10 relative">
             <h1 class="temple-font text-5xl md:text-6xl text-yellow-400">郁靈聖宮</h1>
         </div>
-        
-        <div class="bg-zinc-900/70 border-4 border-red-800 rounded-3xl p-8 md:p-12 backdrop-blur-md flex justify-center items-center gap-6 md:gap-12 relative shadow-2xl">
+
+        <div
+            class="bg-zinc-900/70 border-4 border-red-800 rounded-3xl p-8 md:p-12 backdrop-blur-md flex justify-center items-center gap-6 md:gap-12 relative shadow-2xl">
             <div class="writing-vertical gold-text text-xl md:text-3xl font-bold temple-font opacity-80">郁氣芬芳消百難</div>
-            
-            <div id="shrine-container" class="relative">
-                <div class="photo-container w-52 h-72 md:w-64 md:h-96">
-                    <img id="saint-photo" src="yuling.png" onerror="this.src='https://placehold.co/400x600/333/ffd700?text=Saint+Yuling';" class="w-full h-full object-cover rounded-lg">
-                    <input type="file" class="absolute inset-0 opacity-0 cursor-pointer z-20" onchange="window.previewPhoto(event)">
-                </div>
-                <div id="smoke-emitter" class="absolute bottom-[-10px] left-1/2 -translate-x-1/2 w-full h-10"></div>
-                
-                <div class="mt-6 flex flex-col items-center">
-                    <div class="text-[10px] text-zinc-500">香火總量</div>
-                    <div class="text-3xl font-black text-white" id="incense-count">0</div>
+
+            <div class="flex flex-col items-center">
+                <div id="shrine-container" class="relative">
+                    <div id="photo-frame" class="photo-container w-52 h-72 md:w-64 md:h-96 aura-1">
+                        <img id="saint-photo" src="yuling.png"
+                            onerror="this.src='https://placehold.co/400x600/333/ffd700?text=Saint+Yuling';"
+                            class="w-full h-full object-cover rounded-lg">
+                        <input type="file" class="absolute inset-0 opacity-0 cursor-pointer z-20"
+                            onchange="window.previewPhoto(event)">
+                    </div>
+
+                    <div id="fx-emitter"
+                        class="absolute bottom-10 left-1/2 -translate-x-1/2 w-full h-10 flex justify-center pointer-events-none">
+                    </div>
+
+                    <div class="mt-6 flex flex-col items-center">
+                        <div class="text-[10px] text-zinc-500 tracking-widest">全台香火總量</div>
+                        <div class="text-3xl font-black text-white" id="incense-count">0</div>
+                    </div>
                 </div>
             </div>
 
@@ -115,24 +61,32 @@
         </div>
     </header>
 
-    <div class="flex flex-wrap justify-center gap-4 mb-8 px-4">
-        <button onclick="window.burnIncense()" class="bg-white text-black px-10 py-4 rounded-full font-black shadow-lg transform hover:scale-105 transition">誠心上香 🙏</button>
+    <div class="flex flex-wrap justify-center gap-4 mb-10 px-4 relative z-20">
+        <button onclick="window.burnIncense()"
+            class="bg-white text-black px-12 py-4 rounded-full font-black shadow-[0_0_20px_rgba(255,255,255,0.2)] transform hover:scale-110 transition active:scale-95">誠心上香
+            🙏</button>
         <button onclick="window.drawFortune()" class="btn-temple">聖君靈籤 🔮</button>
         <button onclick="window.addOffering()" class="btn-temple">供奉獻禮</button>
         <button onclick="window.sendBlessing()" class="btn-temple text-pink-500">親友祝壽 🎂</button>
-        <button onclick="window.makeWish()" class="bg-green-700 text-white px-8 py-4 rounded-full font-black shadow-lg">我要許願 🎋</button>
+        <button onclick="window.makeWish()"
+            class="bg-green-700 text-white px-8 py-4 rounded-full font-black shadow-lg">我要許願 🎋</button>
     </div>
 
-    <button id="unlock-admin-btn" onclick="window.adminAction(() => window.showAdminPanel())" class="text-[10px] text-zinc-700 hover:text-red-900 tracking-[0.4rem] mb-12 transition-colors">
+    <button id="unlock-admin-btn" onclick="window.adminAction(() => window.showAdminPanel())"
+        class="text-[10px] text-zinc-700 hover:text-red-900 tracking-[0.4rem] mb-12 transition-colors">
         —— 進入聖殿後台 (密碼驗證) ——
     </button>
 
     <div id="admin-panel" class="w-full max-w-2xl p-8 rounded-3xl mb-16 mx-4">
         <h3 class="temple-font text-2xl text-red-500 text-center mb-6">⛩️ 聖殿禁地控制台</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button onclick="window.changeMood()" class="bg-zinc-800 text-yellow-500 p-4 rounded-xl font-bold border border-yellow-900/50 hover:bg-zinc-700">修改聖君心情</button>
-            <button onclick="window.toggleBirthdayMode()" class="bg-zinc-800 text-pink-500 p-4 rounded-xl font-bold border border-pink-900/50 hover:bg-zinc-700">切換生日慶典</button>
-            <button onclick="window.addTodo()" class="bg-red-900/40 text-white p-4 rounded-xl font-bold border border-red-500 col-span-1 md:col-span-2 hover:bg-red-900/60">頒布新聖旨 📜</button>
+            <button onclick="window.changeMood()"
+                class="bg-zinc-800 text-yellow-500 p-4 rounded-xl font-bold border border-yellow-900/50 hover:bg-zinc-700">修改聖君心情</button>
+            <button onclick="window.toggleBirthdayMode()"
+                class="bg-zinc-800 text-pink-500 p-4 rounded-xl font-bold border border-pink-900/50 hover:bg-zinc-700">切換生日慶典</button>
+            <button onclick="window.addTodo()"
+                class="bg-red-900/40 text-white p-4 rounded-xl font-bold border border-red-500 col-span-1 md:col-span-2 hover:bg-red-900/60">頒布新聖旨
+                📜</button>
         </div>
         <div id="mood-status" class="text-center text-xs gold-text mt-6 opacity-60 italic">目前心情：讀取中...</div>
     </div>
@@ -149,7 +103,7 @@
     </div>
 
     <section class="w-full max-w-6xl px-6 mb-32 text-center">
-        <h3 class="temple-font text-4xl gold-text mb-12">🎋 許願樹</h3>
+        <h3 class="temple-font text-4xl gold-text mb-12">🎋 賽博許願樹</h3>
         <div id="wish-tree-area" class="flex flex-wrap justify-center items-start min-h-[300px]"></div>
     </section>
 
@@ -157,279 +111,7 @@
         <h3 class="temple-font text-3xl text-center gold-text mb-8">📜 雲端聖旨錄</h3>
         <div id="todo-list" class="space-y-4"></div>
     </section>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue, update, remove, limitToLast, query, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDH42n_ZBKWDqoniS2sQXlcVGLcQ0yVmBE",
-            authDomain: "yuling-temple.firebaseapp.com",
-            projectId: "yuling-temple",
-            databaseURL: "https://yuling-temple-default-rtdb.asia-southeast1.firebasedatabase.app",
-            storageBucket: "yuling-temple.firebasestorage.app",
-            messagingSenderId: "463197515285",
-            appId: "1:463197515285:web:8cbf45a9e3e583d846e81c",
-            measurementId: "G-C8F473WY7F"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        // --- 🔐 管理員驗證 ---
-        let isAdmin = false;
-        window.adminAction = async (cb) => {
-            if (isAdmin) { cb(); return; }
-            const { value: pw } = await Swal.fire({
-                title: '🔑 聖殿密鑰驗證',
-                html: '此處為聖殿禁區<br><small style="color: #888;">管理員請輸入 密碼 解除封印</small>',
-                input: 'password',
-                inputPlaceholder: '請輸入四位數密鑰...',
-                confirmButtonText: '解除封印',
-                inputAttributes: { autocapitalize: 'off', autocorrect: 'off' }
-            });
-
-            if (pw === '0224') {
-                isAdmin = true;
-                Swal.fire({ icon: 'success', title: '封印解除', showConfirmButton: false, timer: 1000 });
-                cb();
-            } else if (pw) {
-                Swal.fire('驗證失敗', '凡人不可僭越', 'error');
-            }
-        };
-
-        window.showAdminPanel = () => {
-            document.getElementById('admin-panel').style.display = 'block';
-            document.getElementById('unlock-admin-btn').style.display = 'none';
-            document.getElementById('admin-panel').scrollIntoView({ behavior: 'smooth' });
-        };
-
-        // --- 🌬️ 煙霧生成 ---
-        window.burnIncense = () => {
-            document.getElementById('bell-sound').play();
-            runTransaction(ref(db, 'stats/incenseCount'), c => (c || 0) + 1);
-            const emitter = document.getElementById('smoke-emitter');
-            for (let i = 0; i < 8; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'smoke-particle';
-                const size = Math.random() * 40 + 30;
-                particle.style.width = `${size}px`; particle.style.height = `${size}px`;
-                particle.style.left = `${Math.random() * 80 + 10}%`;
-                particle.style.animationDuration = `${Math.random() * 2 + 2}s`;
-                emitter.appendChild(particle);
-                setTimeout(() => particle.remove(), 4000);
-            }
-            confetti({ particleCount: 20, origin: { y: 0.8 }, colors: ['#ffd700'] });
-        };
-
-        // --- 1. 晝夜與心情實時監控 ---
-        const updateTheme = () => {
-            const hr = new Date().getHours();
-            const body = document.getElementById('main-body');
-            if(!body.classList.contains('theme-birthday')) {
-                body.className = `flex flex-col items-center ${hr < 6 || hr >= 18 ? 'theme-night' : 'theme-day'}`;
-            }
-            document.getElementById('current-time-display').innerText = `CLOCK // ${new Date().toLocaleTimeString()}`;
-        };
-        setInterval(updateTheme, 1000); updateTheme();
-
-        onValue(ref(db, 'stats/mood'), (s) => {
-            const mood = s.val() || "法喜充滿";
-            document.getElementById('mood-status').innerText = `聖君當前心情：${mood}`;
-            document.getElementById('main-shrine').classList.toggle('mood-angry', mood === "雷霆之怒");
-        });
-
-        window.changeMood = async () => {
-            const { value: m } = await Swal.fire({
-                title: '設定聖君心情',
-                input: 'select',
-                inputOptions: { '法喜充滿': '法喜充滿', '略有微詞': '略有微詞', '雷霆之怒': '雷霆之怒' }
-            });
-            if(m) update(ref(db, 'stats'), { mood: m });
-        };
-
-        window.toggleBirthdayMode = () => {
-            const isB = document.getElementById('main-body').classList.toggle('theme-birthday');
-            if(isB) confetti({ particleCount: 200, spread: 80, origin: { y: 0.7 } });
-        };
-
-        // --- 2. 功德榜 & 供奉 ---
-        onValue(ref(db, 'offerings'), (snap) => {
-            const list = document.getElementById('leaderboard-list');
-            const marquee = document.getElementById('marquee-content');
-            if (snap.exists()) {
-                const data = Object.values(snap.val());
-                const counts = {};
-                data.forEach(o => counts[o.name] = (counts[o.name] || 0) + 1);
-                const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 3);
-                list.innerHTML = sorted.map((s, i) => `
-                    <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl border-l-4 border-yellow-500 text-sm">
-                        <span>${i+1}. ${s[0]}</span><span class="text-yellow-500 font-bold">${s[1]}次</span>
-                    </div>`).join('');
-                
-                let txt = "🏮 郁靈聖宮開聖門 🏮 ";
-                data.reverse().slice(0, 5).forEach(o => txt += `【 ${o.name} 供奉了 ${o.gift} 】 🏮 `);
-                marquee.innerText = txt;
-            }
-        });
-
-        window.addOffering = async () => {
-            const { value: f } = await Swal.fire({ title: '供奉禮物', html: '<input id="i1" class="swal2-input" placeholder="大名"><input id="i2" class="swal2-input" placeholder="禮物">' });
-            if (f && f[0]) push(ref(db, 'offerings'), { name: document.getElementById('i1').value, gift: document.getElementById('i2').value, time: Date.now() });
-        };
-
-        // --- 3. 祝壽燈牆 ---
-        window.sendBlessing = async () => {
-            const { value: f } = await Swal.fire({
-                title: '送上祝福',
-                html: '<input id="b1" class="swal2-input" placeholder="姓名"><input id="b2" class="swal2-input" placeholder="祝福語">',
-                preConfirm: () => [document.getElementById('b1').value, document.getElementById('b2').value]
-            });
-            if(f && f[0]) push(ref(db, 'blessings'), { name: f[0], msg: f[1], time: Date.now() });
-        };
-
-        onValue(query(ref(db, 'blessings'), limitToLast(6)), (snap) => {
-            const wall = document.getElementById('blessing-wall'); wall.innerHTML = '';
-            if(snap.exists()) {
-                Object.values(snap.val()).reverse().forEach(b => {
-                    const lamp = document.createElement('div'); lamp.className = 'blessing-lamp p-4 rounded-2xl text-center text-[10px]';
-                    lamp.innerHTML = `<p class="text-yellow-500 font-bold mb-1">${b.name}</p><p class="text-zinc-400 italic">"${b.msg}"</p>`;
-                    wall.appendChild(lamp);
-                });
-            }
-        });
-
-        // --- 4. 許願樹 & 靈籤 ---
-        window.makeWish = async () => {
-            const { value: w } = await Swal.fire({ title: '誠心許願', input: 'text' });
-            if(w) push(ref(db, 'wishes'), { text: w });
-        };
-
-        onValue(query(ref(db, 'wishes'), limitToLast(12)), (snap) => {
-            const tree = document.getElementById('wish-tree-area'); tree.innerHTML = '';
-            if(snap.exists()) Object.values(snap.val()).forEach(w => {
-                const el = document.createElement('div'); el.className = 'wish-tag'; el.innerText = w.text;
-                el.onclick = () => Swal.fire({ title: '🎋 願望詳情', text: w.text });
-                tree.appendChild(el);
-            });
-        });
-
-        window.drawFortune = async () => {
-            // 1. 抽籤動畫
-            Swal.fire({
-                title: '🔮 誠心請示聖君...',
-                html: '<div class="py-4 text-zinc-500 italic">正在搖動籤筒，請默念心中所求...</div>',
-                timer: 2000,
-                timerProgressBar: true,
-                didOpen: () => { Swal.showLoading(); }
-            }).then(() => {
-                // 2. 籤詩資料庫 (Omikuji Style)
-                const fortunes = [
-                    { 
-                        t: "大吉 (だいきち)", 
-                        p: "天開雲散見金光，萬里清風送郁香。", 
-                        m: "聖君今日法喜充滿，心存正念，無往不利。",
-                        love: "求生慾滿載，凡事皆能得聖君垂青。",
-                        gift: "宜進獻大杯半糖去冰珍奶，必得聖寵。"
-                    },
-                    { 
-                        t: "中吉 (ちゅうきち)", 
-                        p: "水波盪漾映新月，柳暗花明又一村。", 
-                        m: "運勢穩定上升，若能忍氣吞聲，必有福報。",
-                        love: "適度撒嬌可化解先前所有聖怒。",
-                        gift: "提拉米蘇或精緻甜品，是今日的開運關鍵。"
-                    },
-                    { 
-                        t: "小吉 (しょうきち)", 
-                        p: "春風輕拂柳絲長，細水長流日漸強。", 
-                        m: "不可操之過急，保持謙卑之心方能平安度日。",
-                        love: "今日宜聽話，聖君說東不可往西。",
-                        gift: "一場誠意十足的按摩，可增進功德。"
-                    },
-                    { 
-                        t: "吉 (きち)", 
-                        p: "耕耘自有收成日，莫向春風嘆早遲。", 
-                        m: "平順之卦，做好微臣本職工作，自得聖君微笑。",
-                        love: "安分守己，切莫翻閱聖君過去之聖旨。",
-                        gift: "簡單的關心與暖心飲料即可。"
-                    },
-                    { 
-                        t: "末吉 (すえきち)", 
-                        p: "寒蟬抱影棲枯木，且待春雷震動時。", 
-                        m: "運勢略顯沈悶，目前宜守不宜進，多做家事為妙。",
-                        love: "沈默是金，多點點頭，少說廢話。",
-                        gift: "宜準備宵夜待命。"
-                    },
-                    { 
-                        t: "凶 (きょう)", 
-                        p: "烏雲蓋頂雷聲急，微臣切莫觸龍顏。", 
-                        m: "警報！聖君目前略有微詞，微臣應立即進入最高戒備。",
-                        love: "偵測到微量殺氣，求生慾應切換至極速模式。",
-                        gift: "火速搜尋「外送」或「網購清單」，以防不測。"
-                    },
-                    { 
-                        t: "特吉：聖恩 (しんおん)", 
-                        p: "郁靈聖宮千秋在，萬世隆恩護君心。", 
-                        m: "你是聖君這世上最寵溺的信徒，今日無禁無忌。",
-                        love: "聖君正打算好好疼愛你，請做好準備。",
-                        gift: "只要是你，聖君都喜歡。"
-                    }
-                ];
-
-                // 3. 隨機抽取
-                const f = fortunes[Math.floor(Math.random() * fortunes.length)];
-
-                // 4. 噴發慶祝紙屑 (只有大吉或特吉)
-                if (f.t.includes('大吉') || f.t.includes('特吉')) {
-                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#ffd700', '#ff0000', '#ffffff'] });
-                }
-
-                // 5. 顯示神社風格籤詩彈窗
-                Swal.fire({
-                    title: `<span class="temple-font text-3xl gold-text">${f.t}</span>`,
-                    html: `
-                        <div class="p-6 text-left border-2 border-red-900 rounded-lg bg-zinc-900/50 shadow-inner">
-                            <div class="mb-4 text-center">
-                                <p class="text-xl font-bold text-red-500 mb-2">【 籤 詩 】</p>
-                                <p class="italic text-lg text-zinc-200">${f.p}</p>
-                            </div>
-                            <hr class="border-red-900/50 mb-4">
-                            <div class="space-y-3 text-sm">
-                                <p><span class="text-yellow-500 font-bold">● 聖意：</span> ${f.m}</p>
-                                <p><span class="text-yellow-500 font-bold">● 求生慾：</span> ${f.love}</p>
-                                <p><span class="text-yellow-500 font-bold">● 供奉：</span> ${f.gift}</p>
-                            </div>
-                        </div>
-                        <div class="mt-4 text-[10px] text-zinc-600 tracking-widest uppercase">Yuling Temple Omikuji Service</div>
-                    `,
-                    confirmButtonText: '謝主隆恩',
-                    showClass: { popup: 'animate__animated animate__fadeInDown' }
-                });
-            });
-        };
-
-        // --- 5. 聖旨清單 ---
-        onValue(ref(db, 'stats/incenseCount'), s => document.getElementById('incense-count').innerText = s.val() || 0);
-        onValue(ref(db, 'todos'), (snap) => {
-            const list = document.getElementById('todo-list'); list.innerHTML = '';
-            if (snap.exists()) Object.entries(snap.val()).forEach(([id, item]) => {
-                const div = document.createElement('div');
-                div.className = `flex items-center bg-white/5 p-5 rounded-2xl border-l-4 ${item.checked ? 'border-zinc-700 opacity-40' : 'border-red-600'} mb-3`;
-                div.innerHTML = `<input type="checkbox" ${item.checked ? 'checked' : ''} onchange="window.adminAction(() => window.toggleTodo('${id}', ${item.checked}))" class="w-6 h-6 mr-4"><span class="flex-grow text-sm">${item.text}</span><button onclick="window.adminAction(() => window.deleteTodo('${id}'))" class="text-zinc-700 hover:text-red-500 px-2 text-xl">✕</button>`;
-                list.appendChild(div);
-            });
-        });
-
-        window.addTodo = async () => {
-            const { value: t } = await Swal.fire({ title: '頒布新聖旨', input: 'text' });
-            if (t) push(ref(db, 'todos'), { text: t, checked: false });
-        };
-        window.toggleTodo = (id, cur) => update(ref(db, `todos/${id}`), { checked: !cur });
-        window.deleteTodo = (id) => remove(ref(db, `todos/${id}`));
-        window.previewPhoto = (e) => {
-            const r = new FileReader(); r.onload = (ev) => document.getElementById('saint-photo').src = ev.target.result;
-            r.readAsDataURL(e.target.files[0]);
-        };
-    </script>
+    <script type="module" src="main.js"></script>
 </body>
+
 </html>
