@@ -83,14 +83,27 @@
     </header>
 
     <div class="flex flex-wrap justify-center gap-4 mb-10 px-4 relative z-20">
+
         <button onclick="window.burnIncense()"
             class="bg-white text-black px-12 py-4 rounded-full font-black shadow-[0_0_20px_rgba(255,255,255,0.2)] transform hover:scale-110 transition active:scale-95">誠心上香
             🙏</button>
-        <button onclick="window.drawFortune()" class="btn-temple">聖君靈籤 🔮</button>
-        <button onclick="window.addOffering()" class="btn-temple">供奉獻禮</button>
-        <button onclick="window.sendBlessing()" class="btn-temple text-pink-500">親友祝壽 🎂</button>
+
+        <button onclick="window.drawFortune()"
+            class="bg-purple-800 text-white px-8 py-4 rounded-full font-black border border-purple-400 shadow-lg hover:bg-purple-700 transition">聖君靈籤
+            🔮</button>
+
+        <button onclick="window.addOffering()"
+            class="bg-yellow-600 text-black px-8 py-4 rounded-full font-black shadow-lg hover:bg-yellow-500 transition">供奉獻禮
+            🎁</button>
+
+        <button onclick="window.sendBlessing()"
+            class="bg-pink-600 text-white px-8 py-4 rounded-full font-black border border-pink-400 shadow-lg hover:bg-pink-500 transition">親友祝壽
+            🎂</button>
+
         <button onclick="window.makeWish()"
-            class="bg-green-700 text-white px-8 py-4 rounded-full font-black shadow-lg">我要許願 🎋</button>
+            class="bg-green-700 text-white px-8 py-4 rounded-full font-black shadow-lg hover:bg-green-600 transition">我要許願
+            🎋</button>
+
     </div>
 
     <button id="unlock-admin-btn" onclick="window.adminAction(() => window.showAdminPanel())"
