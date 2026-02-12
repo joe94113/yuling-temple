@@ -1,5 +1,11 @@
 :root { --glow: #ffd700; }
-body { background-color: #050505; color: #e0e0e0; font-family: 'Noto Serif TC', serif; transition: all 1s ease; overflow-x: hidden; }
+body { 
+    background-color: #050505; 
+    color: #e0e0e0; 
+    font-family: 'Noto Serif TC', 'Source Han Serif TW', 'Songti TC', serif; 
+    transition: all 1s ease; 
+    overflow-x: hidden; 
+}
 
 .theme-day { background: radial-gradient(circle at center, #2c1a0a 0%, #050505 100%); --glow: #ffd700; }
 .theme-night { background: radial-gradient(circle at center, #1a0a2c 0%, #050505 100%); --glow: #bc13fe; }
