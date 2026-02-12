@@ -34,7 +34,7 @@ window.adminAction = async (cb) => {
     }
     const { value: pw } = await Swal.fire({
         title: "🔑 聖殿密鑰驗證",
-        html: '此處為聖殿禁區<br><small style="color: #888;">管理員請輸入 密碼 解除封印</small>',
+        html: '此處為聖殿禁區<br><small style="color: #888;">管理員請輸入 0224 解除封印</small>',
         input: "password",
         confirmButtonText: "解除封印",
         inputAttributes: { autocapitalize: "off", autocorrect: "off" },
@@ -53,17 +53,14 @@ window.showAdminPanel = () => {
     document.getElementById("admin-panel").scrollIntoView({ behavior: "smooth" });
 };
 
-// --- 🌬️ 上香 (煙霧 + 木魚聲 + 功德浮字) ---
+// --- 🌬️ 上香 ---
 window.burnIncense = () => {
     const audio = document.getElementById("wood-sound").cloneNode();
     audio.volume = 0.6;
     audio.play();
-
     runTransaction(ref(db, "stats/incenseCount"), (c) => (c || 0) + 1);
 
     const emitter = document.getElementById("fx-emitter");
-
-    // 煙霧粒子
     for (let i = 0; i < 4; i++) {
         const p = document.createElement("div");
         p.className = "smoke-particle";
@@ -75,7 +72,6 @@ window.burnIncense = () => {
         setTimeout(() => p.remove(), 4000);
     }
 
-    // 功德浮字
     const txt = document.createElement("div");
     txt.className = "merit-text text-sm";
     txt.innerText = Math.random() > 0.8 ? "煩惱 -1" : "功德 +1";
@@ -97,7 +93,7 @@ onValue(ref(db, "stats/incenseCount"), (s) => {
     else frame.classList.add("aura-1");
 });
 
-// --- 🏆 功德榜與稱號 ---
+// --- 🏆 稱號與排行榜 ---
 const getTitle = (count) => {
     if (count > 50) return { t: "聖宮守護神", c: "rank-god" };
     if (count > 20) return { t: "首席大檀越", c: "rank-chief" };
@@ -108,8 +104,12 @@ const getTitle = (count) => {
 onValue(ref(db, "offerings"), (snap) => {
     const list = document.getElementById("leaderboard-list");
     const marquee = document.getElementById("marquee-content");
+    const detailList = document.getElementById("offering-detail-list");
+
     if (snap.exists()) {
         const data = Object.values(snap.val());
+
+        // 1. 排行榜邏輯
         const counts = {};
         data.forEach((o) => (counts[o.name] = (counts[o.name] || 0) + 1));
         const sorted = Object.entries(counts)
@@ -131,11 +131,33 @@ onValue(ref(db, "offerings"), (snap) => {
             })
             .join("");
 
+        // 2. 跑馬燈
         let txt = "🏮 郁靈聖宮開聖門 🏮 ";
         data.reverse()
             .slice(0, 5)
             .forEach((o) => (txt += `【 ${o.name} 供奉了 ${o.gift} 】 🏮 `));
         marquee.innerText = txt;
+
+        // 3. 供奉明細列表 (取最後 50 筆)
+        detailList.innerHTML = "";
+        // data 已經 reverse 過了 (最新的在前)
+        data.slice(0, 50).forEach((o) => {
+            const date = o.time
+                ? new Date(o.time).toLocaleString("zh-TW", {
+                      month: "numeric",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                  })
+                : "剛剛";
+            detailList.innerHTML += `
+                        <tr class="hover:bg-white/5 transition">
+                            <td class="py-2 pl-2 text-zinc-500 text-xs">${date}</td>
+                            <td class="py-2 font-bold text-zinc-300">${o.name}</td>
+                            <td class="py-2 text-yellow-500">${o.gift}</td>
+                        </tr>
+                    `;
+        });
     }
 });
 
@@ -277,7 +299,7 @@ window.drawFortune = async () => {
     });
 };
 
-// --- 其它功能 ---
+// --- 其它基礎功能 ---
 const updateTheme = () => {
     const hr = new Date().getHours();
     const body = document.getElementById("main-body");
@@ -306,16 +328,16 @@ window.toggleBirthdayMode = () => {
     if (document.getElementById("main-body").classList.toggle("theme-birthday"))
         confetti({ particleCount: 200, spread: 80, origin: { y: 0.7 } });
 };
-// --- 🏆 供奉獻禮 ---
+
 window.addOffering = async () => {
     const { value: f } = await Swal.fire({
         title: "供奉禮物",
         html: `
-            <div style="display: flex; flex-direction: column; gap: 15px; width: 100%; padding: 0 10px; box-sizing: border-box;">
-                <input id="i1" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="大名">
-                <input id="i2" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="禮物">
-            </div>
-        `,
+                    <div style="display: flex; flex-direction: column; gap: 15px; width: 100%; padding: 0 10px; box-sizing: border-box;">
+                        <input id="i1" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="大名">
+                        <input id="i2" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="禮物">
+                    </div>
+                `,
         preConfirm: () => [
             document.getElementById("i1").value,
             document.getElementById("i2").value,
@@ -324,27 +346,23 @@ window.addOffering = async () => {
     if (f && f[0]) push(ref(db, "offerings"), { name: f[0], gift: f[1], time: Date.now() });
 };
 
-// --- 🎂 親友祝壽 ---
 window.sendBlessing = async () => {
     const { value: f } = await Swal.fire({
         title: "送上祝福",
         html: `
-            <div style="display: flex; flex-direction: column; gap: 15px; width: 100%; padding: 0 10px; box-sizing: border-box;">
-                <input id="b1" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="親友姓名">
-                <input id="b2" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="想說的話">
-            </div>
-        `,
-        preConfirm: () => {
-            const name = document.getElementById("b1").value;
-            const msg = document.getElementById("b2").value;
-            if (!name || !msg) {
-                Swal.showValidationMessage("請完整填寫姓名與祝福語！");
-            }
-            return [name, msg];
-        },
+                    <div style="display: flex; flex-direction: column; gap: 15px; width: 100%; padding: 0 10px; box-sizing: border-box;">
+                        <input id="b1" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="親友姓名">
+                        <input id="b2" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="想說的話">
+                    </div>
+                `,
+        preConfirm: () => [
+            document.getElementById("b1").value,
+            document.getElementById("b2").value,
+        ],
     });
     if (f && f[0]) push(ref(db, "blessings"), { name: f[0], msg: f[1], time: Date.now() });
 };
+
 onValue(query(ref(db, "blessings"), limitToLast(6)), (snap) => {
     const wall = document.getElementById("blessing-wall");
     wall.innerHTML = "";
