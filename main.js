@@ -110,42 +110,58 @@ onValue(ref(db, "offerings"), (snap) => {
     if (snap.exists()) {
         const data = Object.values(snap.val());
 
-        // 1. 排行榜邏輯
-        const counts = {};
-        data.forEach((o) => (counts[o.name] = (counts[o.name] || 0) + 1));
-        const sorted = Object.entries(counts)
-            .sort((a, b) => b[1] - a[1])
+        // 1. 排行榜邏輯 (統計次數 + 記錄最後供奉時間)
+        const stats = {};
+
+        data.forEach((o) => {
+            if (!stats[o.name]) {
+                stats[o.name] = { count: 0, lastTime: 0 };
+            }
+            stats[o.name].count += 1;
+            // 更新該信徒的最後供奉時間
+            const t = o.time || 0; // 舊資料無時間則視為 0
+            if (t > stats[o.name].lastTime) {
+                stats[o.name].lastTime = t;
+            }
+        });
+
+        // 排序：先比次數(多->少)，次數相同比時間(新->舊)
+        const sorted = Object.entries(stats)
+            .sort((a, b) => {
+                const countDiff = b[1].count - a[1].count; // 第一排序：次數
+                if (countDiff !== 0) return countDiff;
+                return b[1].lastTime - a[1].lastTime; // 第二排序：時間 (數字大=新)
+            })
             .slice(0, 5);
 
         list.innerHTML = sorted
             .map((s, i) => {
-                const rank = getTitle(s[1]);
+                // s[0] 是名字, s[1] 是 { count, lastTime }
+                const rank = getTitle(s[1].count);
                 return `
-                    <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border-l-4 border-yellow-500 text-sm">
-                        <div class="flex items-center">
-                            <span class="mr-2 text-yellow-500 font-bold">#${i + 1}</span>
-                            <span class="title-badge ${rank.c}">${rank.t}</span>
-                            <span class="font-bold">${s[0]}</span>
-                        </div>
-                        <span class="text-yellow-500 font-black">${s[1]}</span>
-                    </div>`;
+            <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border-l-4 border-yellow-500 text-sm">
+                <div class="flex items-center">
+                    <span class="mr-2 text-yellow-500 font-bold">#${i + 1}</span>
+                    <span class="title-badge ${rank.c}">${rank.t}</span>
+                    <span class="font-bold">${s[0]}</span>
+                </div>
+                <span class="text-yellow-500 font-black">${s[1].count} 次</span>
+            </div>`;
             })
             .join("");
 
-        // 2. 跑馬燈
+        // 2. 跑馬燈 (顯示最近 5 筆)
         const recentData = [...data].reverse();
         let txt = "🏮 郁靈聖宮開聖門 🏮 ";
         recentData.slice(0, 5).forEach((o) => (txt += `【 ${o.name} 供奉了 ${o.gift} 】 🏮 `));
         marquee.innerText = txt;
 
-        // 3. 供奉明細列表
+        // 3. 供奉明細列表 (顯示最近 50 筆)
         detailList.innerHTML = "";
         recentData.slice(0, 50).forEach((o) => {
-            let timeDisplay = "早期"; // 預設顯示文字
-
+            let timeDisplay = "早期";
             if (o.time) {
                 const d = new Date(o.time);
-                // 格式化為：2/24 15:30
                 const month = d.getMonth() + 1;
                 const date = d.getDate();
                 const hour = d.getHours().toString().padStart(2, "0");
@@ -154,12 +170,12 @@ onValue(ref(db, "offerings"), (snap) => {
             }
 
             detailList.innerHTML += `
-                        <tr class="hover:bg-white/5 transition border-b border-zinc-800/50">
-                            <td class="py-3 pl-2 text-zinc-500 text-xs font-mono">${timeDisplay}</td>
-                            <td class="py-3 font-bold text-zinc-300">${o.name}</td>
-                            <td class="py-3 text-yellow-500">${o.gift}</td>
-                        </tr>
-                    `;
+                <tr class="hover:bg-white/5 transition border-b border-zinc-800/50">
+                    <td class="py-3 pl-2 text-zinc-500 text-xs font-mono">${timeDisplay}</td>
+                    <td class="py-3 font-bold text-zinc-300">${o.name}</td>
+                    <td class="py-3 text-yellow-500">${o.gift}</td>
+                </tr>
+            `;
         });
     }
 });
