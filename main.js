@@ -650,3 +650,38 @@ window.addEventListener("resize", () => {
         resizeTimer = setTimeout(initCyberTree, 500);
     }
 });
+
+window.playQuote = () => {
+    const audio = document.getElementById("quote-sound");
+    if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch((e) => console.log("播放失敗:", e));
+
+        // 視覺回饋：讓神像震動一下，像是在說話
+        const photo = document.getElementById("photo-frame");
+        photo.style.transform = "scale(1.05)";
+        setTimeout(() => (photo.style.transform = "scale(1)"), 200);
+
+        // 跳出聖訓提示
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            background: "#1a1a1a",
+            color: "#ffd700",
+            iconColor: "#ffd700",
+            didOpen: (toast) => {
+                toast.addEventListener("mouseenter", Swal.stopTimer);
+                toast.addEventListener("mouseleave", Swal.resumeTimer);
+            },
+        });
+
+        Toast.fire({
+            icon: "info",
+            title: "📣 聖君開示中...",
+            text: "請洗耳恭聽宮主名言",
+        });
+    }
+};

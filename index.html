@@ -45,6 +45,7 @@
     <audio id="cny-sound" src="恭喜發財.mp3"></audio>
     <audio id="pee-sound" src="在你鼻孔尿尿.mp3"></audio>
     <audio id="wtf-sound" src="幹這啥小.mp3"></audio>
+    <audio id="quote-sound" src="名言.mp3"></audio>
 
     <div class="marquee-container w-full">
         <p id="marquee-content" class="marquee-text">🏮 歡迎來到郁靈聖宮 🏮 聖君開示：心誠則靈 🏮 載入中...</p>
@@ -72,6 +73,13 @@
                             class="w-full h-full object-cover rounded-lg">
                         <input type="file" class="absolute inset-0 opacity-0 cursor-pointer z-20"
                             onchange="window.previewPhoto(event)">
+
+                        <button onclick="window.playQuote()"
+                            class="absolute -right-4 -bottom-4 bg-zinc-900 border-2 border-yellow-500 text-yellow-500 rounded-full w-12 h-12 flex items-center justify-center shadow-[0_0_15px_rgba(255,215,0,0.5)] z-30 hover:scale-110 hover:bg-yellow-900 transition active:scale-95 group">
+                            <span class="text-xl group-hover:animate-ping">🔊</span>
+                            <span
+                                class="absolute -top-8 right-0 w-24 bg-red-900 text-white text-[10px] p-1 rounded opacity-0 group-hover:opacity-100 transition pointer-events-none">點擊聆聽聖訓</span>
+                        </button>
                     </div>
 
                     <div id="fx-emitter"
