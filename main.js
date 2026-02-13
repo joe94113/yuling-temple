@@ -330,11 +330,29 @@ const updateTheme = () => {
 setInterval(updateTheme, 1000);
 updateTheme();
 
+// --- 聖君心情監聽 ---
 onValue(ref(db, "stats/mood"), (s) => {
     const mood = s.val() || "法喜充滿";
     document.getElementById("mood-status").innerText = `聖君當前心情：${mood}`;
-    document.getElementById("main-shrine").classList.toggle("mood-angry", mood === "雷霆之怒");
+
+    const body = document.body;
+
+    // 重置所有特殊狀態
+    body.classList.remove("rage-mode", "annoyed-mode");
+
+    if (mood === "雷霆之怒") {
+        // 狀態一：暴怒 (紅光 + 劇烈震動)
+        body.classList.add("rage-mode");
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    } else if (mood === "略有微詞") {
+        // 狀態二：微詞 (灰暗 + 訊號故障)
+        body.classList.add("annoyed-mode");
+    } else {
+        // 狀態三：正常 (法喜充滿)
+        // 保持原狀，無需加 class
+    }
 });
+
 window.changeMood = async () => {
     const { value: m } = await Swal.fire({
         title: "設定聖君心情",

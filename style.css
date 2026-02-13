@@ -102,3 +102,96 @@ body {
 .wish-tag {
     z-index: 10; 
 }
+
+/* =========================================
+   🌩️ 聖君震怒模式 (間歇性劇烈震動)
+   ========================================= */
+
+/* 定義震動循環：前 30% 時間狂震，後 70% 時間休息 */
+@keyframes rumble-burst {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    5% { transform: translate(-4px, 4px) rotate(-1deg); }
+    10% { transform: translate(4px, -4px) rotate(1deg); }
+    15% { transform: translate(-4px, -4px) rotate(0deg); }
+    20% { transform: translate(4px, 4px) rotate(1deg); }
+    25% { transform: translate(-4px, 2px) rotate(-1deg); }
+    30% { transform: translate(0, 0) rotate(0deg); } /* 震動結束 */
+    100% { transform: translate(0, 0) rotate(0deg); } /* 休息時間 */
+}
+
+/* 定義紅光閃爍：配合震動一起閃 */
+@keyframes red-flash-burst {
+    0% { background-color: #1a0505; box-shadow: inset 0 0 0 transparent; }
+    5% { background-color: #500000; box-shadow: inset 0 0 50px #ff0000; }
+    10% { background-color: #fff; } /* 閃電白光 */
+    15% { background-color: #500000; }
+    30% { background-color: #1a0505; }
+    100% { background-color: #1a0505; }
+}
+
+body.rage-mode {
+    /* 1.5秒跑一次循環 (含震動與休息) */
+    animation: rumble-burst 1.5s infinite, red-flash-burst 1.5s infinite; 
+    border: 5px solid red;
+    box-sizing: border-box;
+    overflow-x: hidden; /* 防止震動時出現橫向卷軸 */
+}
+
+/* 讓主殿也跟著變色 */
+body.rage-mode #main-shrine {
+    transition: 0.1s;
+    filter: drop-shadow(0 0 20px red) sepia(100%) hue-rotate(-50deg) saturate(400%);
+}
+
+body.rage-mode .gold-text {
+    color: #ff3333 !important;
+    text-shadow: 0 0 10px #8b0000 !important;
+}
+
+
+/* =========================================
+   😒 略有微詞模式 (接觸不良故障感)
+   ========================================= */
+
+/* 定義故障循環：前 20% 時間抽動，中間休息，60% 再抽一下 */
+@keyframes glitch-cycle {
+    0% { transform: translate(0, 0) skew(0deg); filter: hue-rotate(0deg); opacity: 1; }
+    
+    /* 第一波故障 */
+    5% { transform: translate(-3px, 0) skew(-10deg); filter: hue-rotate(90deg) contrast(1.5); opacity: 0.8; }
+    10% { transform: translate(3px, 0) skew(10deg); filter: hue-rotate(-90deg); opacity: 0.9; }
+    15% { transform: translate(0, 0) skew(0deg); filter: none; opacity: 1; }
+    
+    /* 休息一下... */
+    
+    /* 第二波小故障 */
+    50% { transform: translate(2px, 0); filter: grayscale(1); }
+    55% { transform: translate(0, 0); filter: none; }
+    
+    100% { transform: translate(0, 0); }
+}
+
+/* 掃描線濾鏡 (維持不動，營造舊電視感) */
+body.annoyed-mode::before {
+    content: " ";
+    display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 999; background-size: 100% 2px, 3px 100%; pointer-events: none;
+}
+
+body.annoyed-mode {
+    filter: grayscale(0.8) contrast(1.2); 
+    background: #111;
+    --glow: #a0a0a0; 
+}
+
+/* 讓主殿套用故障循環 */
+body.annoyed-mode #main-shrine {
+    /* 4秒跑一次循環 */
+    animation: glitch-cycle 4s infinite; 
+}
+
+body.annoyed-mode .gold-text {
+    color: #00ffff !important; 
+    text-shadow: 2px 2px 0px #ff00ff !important; 
+}
