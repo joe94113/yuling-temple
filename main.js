@@ -746,3 +746,14 @@ window.petCat = () => {
         shapes: ["circle", "square"],
     });
 };
+
+const tauntStyle1 =
+    "color: #ff0000; font-size: 40px; font-weight: bold; text-shadow: 2px 2px 0px #000;";
+const tauntStyle2 =
+    "color: #ffd700; font-size: 16px; background: #222; padding: 10px; border-radius: 5px; border: 1px solid #ffd700;";
+
+console.log("%c⚠️ 大膽妖孽！", tauntStyle1);
+console.log(
+    "%c竟敢擅闖郁靈聖宮後台！\n你以為按個 F12 就能破解聖君的法陣嗎？\n\n這裡沒有你要的密碼，只有滿滿的業障。\n勸你速速退下，否則聖君將賜你「雷霆之怒」！⚡\n\n(或者...去按一下左下角的貓？)",
+    tauntStyle2,
+);
