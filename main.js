@@ -61,8 +61,7 @@ window.adminAction = async (cb) => {
             } else {
                 Swal.fire("驗證失敗", "凡人不可僭越", "error");
 
-                // 順便播放嘲諷音效
-                const audio = document.getElementById("wtf-sound"); // 幹這啥小.mp3
+                const audio = document.getElementById("wtf-sound");
                 if (audio) {
                     audio.currentTime = 0;
                     audio.play().catch((e) => console.log("音效播放失敗:", e));
@@ -138,7 +137,7 @@ onValue(ref(db, "offerings"), (snap) => {
     if (snap.exists()) {
         const data = Object.values(snap.val());
 
-        // 1. 排行榜邏輯 (統計次數 + 記錄最後供奉時間)
+        // 1. 排行榜
         const stats = {};
 
         data.forEach((o) => {
@@ -146,14 +145,13 @@ onValue(ref(db, "offerings"), (snap) => {
                 stats[o.name] = { count: 0, lastTime: 0 };
             }
             stats[o.name].count += 1;
-            // 更新該信徒的最後供奉時間
-            const t = o.time || 0; // 舊資料無時間則視為 0
+            const t = o.time || 0;
             if (t > stats[o.name].lastTime) {
                 stats[o.name].lastTime = t;
             }
         });
 
-        // 排序：先比次數(多->少)，次數相同比時間(新->舊)
+        // 排序
         const sorted = Object.entries(stats)
             .sort((a, b) => {
                 const countDiff = b[1].count - a[1].count; // 第一排序：次數
@@ -377,7 +375,6 @@ onValue(ref(db, "stats/mood"), (s) => {
         body.classList.add("annoyed-mode");
     } else {
         // 狀態三：正常 (法喜充滿)
-        // 保持原狀，無需加 class
     }
 });
 
@@ -411,17 +408,15 @@ window.addOffering = async () => {
     });
 
     if (f && f[0]) {
-        // 1. 寫入資料庫
         push(ref(db, "offerings"), { name: f[0], gift: f[1], time: Date.now() });
 
-        // 2. 播放音效：幹這啥小
+        // 播放音效：幹這啥小
         const audio = document.getElementById("wtf-sound");
         if (audio) {
             audio.currentTime = 0;
             audio.play().catch((e) => console.log("音效播放失敗:", e));
         }
 
-        // 3. 成功提示
         Swal.fire({
             icon: "success",
             title: "供奉成功",
@@ -460,7 +455,6 @@ window.sendBlessing = async () => {
             audio.play().catch((e) => console.log("音效播放失敗:", e));
         }
 
-        // 3. 成功提示
         Swal.fire({
             icon: "success",
             title: "祝福已送達",
@@ -582,7 +576,7 @@ const initCyberTree = () => {
         .style("left", "0")
         .style("pointer-events", "none"); // 讓點擊穿透
 
-    // 3. 定義金色發光濾鏡 (只定義一次)
+    // 3. 定義金色發光濾鏡
     const defs = svg.append("defs");
     const filter = defs.append("filter").attr("id", "glow");
     filter.append("feGaussianBlur").attr("stdDeviation", "2").attr("result", "coloredBlur");
@@ -590,10 +584,10 @@ const initCyberTree = () => {
     feMerge.append("feMergeNode").attr("in", "coloredBlur");
     feMerge.append("feMergeNode").attr("in", "SourceGraphic");
 
-    // 4. 建立一個群組來放樹，並將濾鏡套用在群組上 (效能關鍵！)
+    // 4. 建立一個群組來放樹，並將濾鏡套用在群組上
     const treeGroup = svg.append("g").style("filter", "url(#glow)");
 
-    // 5. 樹的參數設定 (稍微降低深度以提升效能)
+    // 5. 樹的參數設定
     const maxDepth = 9; // 降為 9 (原本 10)，線條數減半，流暢度大增
     const branchAngle = 22; // 分枝角度
     const startLength = height * 0.22; // 樹幹長度
