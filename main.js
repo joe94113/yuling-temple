@@ -1,4 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 import {
     getDatabase,
     ref,
@@ -23,6 +24,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 const db = getDatabase(app);
 
 // --- 🔐 管理員驗證 ---
@@ -95,9 +97,9 @@ onValue(ref(db, "stats/incenseCount"), (s) => {
 
 // --- 🏆 稱號與排行榜 ---
 const getTitle = (count) => {
-    if (count > 50) return { t: "聖宮守護神", c: "rank-god" };
-    if (count > 20) return { t: "首席大檀越", c: "rank-chief" };
-    if (count > 5) return { t: "虔誠居士", c: "rank-devout" };
+    if (count > 3) return { t: "聖宮守護神", c: "rank-god" };
+    if (count > 2) return { t: "首席大檀越", c: "rank-chief" };
+    if (count > 1) return { t: "虔誠居士", c: "rank-devout" };
     return { t: "凡人信徒", c: "rank-norm" };
 };
 
@@ -370,34 +372,76 @@ window.addOffering = async () => {
     const { value: f } = await Swal.fire({
         title: "供奉禮物",
         html: `
-                    <div style="display: flex; flex-direction: column; gap: 15px; width: 100%; padding: 0 10px; box-sizing: border-box;">
-                        <input id="i1" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="大名">
-                        <input id="i2" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="禮物">
-                    </div>
-                `,
+            <div style="display: flex; flex-direction: column; gap: 15px; width: 100%; padding: 0 10px; box-sizing: border-box;">
+                <input id="i1" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="大名">
+                <input id="i2" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="禮物">
+            </div>
+        `,
         preConfirm: () => [
             document.getElementById("i1").value,
             document.getElementById("i2").value,
         ],
     });
-    if (f && f[0]) push(ref(db, "offerings"), { name: f[0], gift: f[1], time: Date.now() });
+
+    if (f && f[0]) {
+        // 1. 寫入資料庫
+        push(ref(db, "offerings"), { name: f[0], gift: f[1], time: Date.now() });
+
+        // 2. 播放音效：幹這啥小
+        const audio = document.getElementById("wtf-sound");
+        if (audio) {
+            audio.currentTime = 0;
+            audio.play().catch((e) => console.log("音效播放失敗:", e));
+        }
+
+        // 3. 成功提示
+        Swal.fire({
+            icon: "success",
+            title: "供奉成功",
+            text: "聖君正在研究你送了什麼...",
+            timer: 1500,
+            showConfirmButton: false,
+        });
+    }
 };
 
 window.sendBlessing = async () => {
     const { value: f } = await Swal.fire({
         title: "送上祝福",
         html: `
-                    <div style="display: flex; flex-direction: column; gap: 15px; width: 100%; padding: 0 10px; box-sizing: border-box;">
-                        <input id="b1" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="親友姓名">
-                        <input id="b2" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="想說的話">
-                    </div>
-                `,
-        preConfirm: () => [
-            document.getElementById("b1").value,
-            document.getElementById("b2").value,
-        ],
+            <div style="display: flex; flex-direction: column; gap: 15px; width: 100%; padding: 0 10px; box-sizing: border-box;">
+                <input id="b1" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="親友姓名">
+                <input id="b2" class="swal2-input" style="margin: 0; width: 100%; max-width: 100%; box-sizing: border-box;" placeholder="想說的話">
+            </div>
+        `,
+        preConfirm: () => {
+            const name = document.getElementById("b1").value;
+            const msg = document.getElementById("b2").value;
+            if (!name || !msg) Swal.showValidationMessage("請完整填寫姓名與祝福語！");
+            return [name, msg];
+        },
     });
-    if (f && f[0]) push(ref(db, "blessings"), { name: f[0], msg: f[1], time: Date.now() });
+
+    if (f && f[0]) {
+        // 1. 寫入資料庫
+        push(ref(db, "blessings"), { name: f[0], msg: f[1], time: Date.now() });
+
+        // 2. 播放音效：在你鼻孔尿尿
+        const audio = document.getElementById("pee-sound");
+        if (audio) {
+            audio.currentTime = 0;
+            audio.play().catch((e) => console.log("音效播放失敗:", e));
+        }
+
+        // 3. 成功提示
+        Swal.fire({
+            icon: "success",
+            title: "祝福已送達",
+            text: "聖君已收到你的心意 (與尿液?)",
+            timer: 1500,
+            showConfirmButton: false,
+        });
+    }
 };
 
 onValue(query(ref(db, "blessings"), limitToLast(6)), (snap) => {
@@ -410,9 +454,42 @@ onValue(query(ref(db, "blessings"), limitToLast(6)), (snap) => {
                 wall.innerHTML += `<div class="blessing-lamp p-4 rounded-2xl text-center text-[10px]"><p class="text-yellow-500 font-bold mb-1">${b.name}</p><p class="text-zinc-400 italic">"${b.msg}"</p></div>`;
             });
 });
+// --- 🎋 許願樹 ---
 window.makeWish = async () => {
-    const { value: w } = await Swal.fire({ title: "誠心許願", input: "text" });
-    if (w) push(ref(db, "wishes"), { text: w });
+    const { value: w } = await Swal.fire({
+        title: "誠心許願",
+        input: "text",
+        confirmButtonText: "掛上許願牌",
+    });
+
+    if (w) {
+        // 1. 寫入資料庫
+        push(ref(db, "wishes"), { text: w });
+
+        // 2. 播放恭喜發財
+        const audio = document.getElementById("cny-sound");
+        if (audio) {
+            audio.currentTime = 0; // 每次都從頭播放
+            audio.play().catch((e) => console.log("音效播放失敗(可能是瀏覽器阻擋):", e));
+        }
+
+        // 3. 視覺慶祝特效 (放煙火/彩帶)
+        confetti({
+            particleCount: 150,
+            spread: 100,
+            origin: { y: 0.6 },
+            colors: ["#ff0000", "#ffd700", "#ffffff"], // 紅金白配色
+        });
+
+        // 4. 提示成功
+        Swal.fire({
+            icon: "success",
+            title: "許願成功！",
+            text: "願望已掛上賽博神樹，心誠則靈。",
+            timer: 2000,
+            showConfirmButton: false,
+        });
+    }
 };
 onValue(query(ref(db, "wishes"), limitToLast(12)), (snap) => {
     const tree = document.getElementById("wish-tree-area");
