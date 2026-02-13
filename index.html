@@ -46,6 +46,7 @@
     <audio id="pee-sound" src="在你鼻孔尿尿.mp3"></audio>
     <audio id="wtf-sound" src="幹這啥小.mp3"></audio>
     <audio id="quote-sound" src="名言.mp3"></audio>
+    <audio id="meow-sound" src="喵.mp3"></audio>
 
     <div class="marquee-container w-full">
         <p id="marquee-content" class="marquee-text">🏮 歡迎來到郁靈聖宮 🏮 聖君開示：心誠則靈 🏮 載入中...</p>
@@ -172,6 +173,24 @@
         <h3 class="temple-font text-3xl text-center gold-text mb-8">📜 雲端聖旨錄</h3>
         <div id="todo-list" class="space-y-4"></div>
     </section>
+
+    <div id="god-cat-container" onclick="window.petCat()"
+        class="fixed bottom-4 left-4 z-50 cursor-pointer group hover:scale-110 transition duration-300">
+
+        <div id="cat-bubble"
+            class="absolute -top-16 left-0 w-32 bg-white text-black text-xs font-bold p-3 rounded-2xl shadow-lg opacity-0 transition duration-300 pointer-events-none transform scale-0 origin-bottom-left">
+            罐罐交出來！🐟
+        </div>
+
+        <img src="cat.png"
+            class="w-20 h-20 md:w-24 md:h-24 object-contain drop-shadow-[0_0_10px_rgba(255,215,0,0.8)] animate-float">
+
+        <div
+            class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-red-900 text-yellow-400 text-[10px] px-2 py-0.5 rounded-full border border-yellow-500 whitespace-nowrap">
+            鎮殿神貓
+        </div>
+    </div>
+
     <script type="module" src="main.js"></script>
 </body>
 

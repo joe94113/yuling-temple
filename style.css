@@ -195,3 +195,19 @@ body.annoyed-mode .gold-text {
     color: #00ffff !important; 
     text-shadow: 2px 2px 0px #ff00ff !important; 
 }
+
+/* --- 🐱 鎮殿神貓特效 --- */
+@keyframes float-cat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+    animation: float-cat 3s ease-in-out infinite;
+}
+
+/* 讓貓咪被點擊時，氣泡會彈出來 */
+.cat-speaking {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+}

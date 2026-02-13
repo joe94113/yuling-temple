@@ -363,6 +363,7 @@ window.changeMood = async () => {
     });
     if (m) update(ref(db, "stats"), { mood: m });
 };
+
 window.toggleBirthdayMode = () => {
     if (document.getElementById("main-body").classList.toggle("theme-birthday"))
         confetti({ particleCount: 200, spread: 80, origin: { y: 0.7 } });
@@ -454,6 +455,7 @@ onValue(query(ref(db, "blessings"), limitToLast(6)), (snap) => {
                 wall.innerHTML += `<div class="blessing-lamp p-4 rounded-2xl text-center text-[10px]"><p class="text-yellow-500 font-bold mb-1">${b.name}</p><p class="text-zinc-400 italic">"${b.msg}"</p></div>`;
             });
 });
+
 // --- 🎋 許願樹 ---
 window.makeWish = async () => {
     const { value: w } = await Swal.fire({
@@ -524,7 +526,7 @@ window.previewPhoto = (e) => {
     r.onload = (ev) => (document.getElementById("saint-photo").src = ev.target.result);
     r.readAsDataURL(e.target.files[0]);
 };
-// --- 🌳 D3.js 賽博碎形樹生成器 ---
+// --- 🌳 D3.js 碎形樹生成器 ---
 const initCyberTree = () => {
     // 1. 確保 D3 已載入
     if (typeof d3 === "undefined") {
@@ -607,7 +609,7 @@ const initCyberTree = () => {
     drawBranch(width / 2, height, 90, maxDepth, startLength);
 };
 
-// --- 🌲 捲動觸發監聽 (Intersection Observer) ---
+// --- 🌲 捲動觸發監聽 ---
 let hasTreeGrown = false;
 
 const setupScrollObserver = () => {
@@ -626,20 +628,19 @@ const setupScrollObserver = () => {
                         initCyberTree();
                     }, 200);
 
-                    obs.unobserve(entry.target); // 任務完成，停止監聽 (節省效能)
+                    obs.unobserve(entry.target);
                 }
             });
         },
         {
-            root: null, // 視窗本身
-            threshold: 0.3, // 關鍵設定：當區塊露出 30% 時觸發
+            root: null,
+            threshold: 0.3,
         },
     );
 
     observer.observe(target);
 };
 
-// 頁面載入後啟動觀察器
 window.addEventListener("load", setupScrollObserver);
 
 // 視窗縮放時重畫
@@ -684,4 +685,45 @@ window.playQuote = () => {
             text: "請洗耳恭聽宮主名言",
         });
     }
+};
+
+// --- 🐱 擼貓互動系統 ---
+window.petCat = () => {
+    // 1. 播放貓叫聲
+    const audio = document.getElementById("meow-sound");
+    if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch((e) => console.log("喵不出來:", e));
+    }
+
+    // 2. 隨機說話
+    const catWords = [
+        "罐罐呢？🐟",
+        "大膽刁民！😾",
+        "摸我要收費的💰",
+        "聖君在忙，有事找我🐾",
+        "呼嚕...呼嚕...💤",
+        "你的供品太少了！💢",
+        "本喵覺得你運勢不錯✨",
+    ];
+    const randomWord = catWords[Math.floor(Math.random() * catWords.length)];
+
+    // 3. 顯示氣泡
+    const bubble = document.getElementById("cat-bubble");
+    bubble.innerText = randomWord;
+    bubble.classList.add("cat-speaking");
+
+    // 4. 2秒後氣泡消失
+    setTimeout(() => {
+        bubble.classList.remove("cat-speaking");
+    }, 2000);
+
+    // 5. 噴出愛心特效
+    confetti({
+        particleCount: 30,
+        spread: 50,
+        origin: { x: 0.1, y: 0.9 }, // 從左下角噴發
+        colors: ["#ff69b4", "#ffffff"], // 粉紅與白
+        shapes: ["circle"],
+    });
 };
