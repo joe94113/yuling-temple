@@ -689,41 +689,40 @@ window.playQuote = () => {
 
 // --- 🐱 擼貓互動系統 ---
 window.petCat = () => {
-    // 1. 播放貓叫聲
+    const memes = [
+        { audio: "喵iphone聲音.mp3", text: "📱 喵～ (來電)" },
+        { audio: "我沒上車阿.mp3", text: "🚌 乾...我沒上車阿！" },
+        { audio: "在那叫甚麼.mp3", text: "🐕 在那叫甚麼！！" },
+        { audio: "你沒有錢你怎麼那麼可憐.mp3", text: "💸 你沒有錢怎麼那麼可憐~" },
+        { audio: "西勒靠哦.mp3", text: "😒 西勒靠哦？" },
+        { audio: "到底在靠北三小.mp3", text: "🤬 到底在靠北三小！" },
+        { audio: "窩要驗牌.mp3", text: "🃏 窩要驗牌啦！" },
+        { audio: "喵.mp3", text: "🐈 喵～" },
+        { audio: "阿偉阿偉阿偉.mp3", text: "阿偉阿偉阿偉" },
+    ];
+
+    const randomMeme = memes[Math.floor(Math.random() * memes.length)];
+
     const audio = document.getElementById("meow-sound");
     if (audio) {
+        audio.src = randomMeme.audio; // 動態塞入抽到的音檔
         audio.currentTime = 0;
-        audio.play().catch((e) => console.log("喵不出來:", e));
+        audio.play().catch((e) => console.log("迷因播放失敗:", e));
     }
 
-    // 2. 隨機說話
-    const catWords = [
-        "罐罐呢？🐟",
-        "大膽刁民！😾",
-        "摸我要收費的💰",
-        "聖君在忙，有事找我🐾",
-        "呼嚕...呼嚕...💤",
-        "你的供品太少了！💢",
-        "本喵覺得你運勢不錯✨",
-    ];
-    const randomWord = catWords[Math.floor(Math.random() * catWords.length)];
-
-    // 3. 顯示氣泡
     const bubble = document.getElementById("cat-bubble");
-    bubble.innerText = randomWord;
+    bubble.innerText = randomMeme.text; // 顯示剛剛抽到的文字
     bubble.classList.add("cat-speaking");
 
-    // 4. 2秒後氣泡消失
     setTimeout(() => {
         bubble.classList.remove("cat-speaking");
-    }, 2000);
+    }, 2500);
 
-    // 5. 噴出愛心特效
     confetti({
         particleCount: 30,
         spread: 50,
-        origin: { x: 0.1, y: 0.9 }, // 從左下角噴發
-        colors: ["#ff69b4", "#ffffff"], // 粉紅與白
-        shapes: ["circle"],
+        origin: { x: 0.1, y: 0.9 },
+        colors: ["#ffffff", "#ffcc00"], // 白與黃
+        shapes: ["circle", "square"],
     });
 };
