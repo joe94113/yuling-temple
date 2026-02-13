@@ -10,6 +10,7 @@ import {
     limitToLast,
     query,
     runTransaction,
+    get,
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -42,11 +43,36 @@ window.adminAction = async (cb) => {
         inputAttributes: { autocapitalize: "off", autocorrect: "off" },
     });
 
-    if (pw === "0224") {
-        isAdmin = true;
-        Swal.fire({ icon: "success", title: "封印解除", showConfirmButton: false, timer: 1000 });
-        cb();
-    } else if (pw) Swal.fire("驗證失敗", "凡人不可僭越", "error");
+    if (pw) {
+        try {
+            const snapshot = await get(ref(db, "admin_password"));
+
+            const correctPassword = snapshot.exists() ? String(snapshot.val()) : "0224";
+
+            if (pw === correctPassword) {
+                isAdmin = true;
+                Swal.fire({
+                    icon: "success",
+                    title: "封印解除",
+                    showConfirmButton: false,
+                    timer: 1000,
+                });
+                cb();
+            } else {
+                Swal.fire("驗證失敗", "凡人不可僭越", "error");
+
+                // 順便播放嘲諷音效
+                const audio = document.getElementById("wtf-sound"); // 幹這啥小.mp3
+                if (audio) {
+                    audio.currentTime = 0;
+                    audio.play().catch((e) => console.log("音效播放失敗:", e));
+                }
+            }
+        } catch (error) {
+            console.error("抓取密碼失敗:", error);
+            Swal.fire("系統異常", "無法連線至神明伺服器", "error");
+        }
+    }
 };
 
 window.showAdminPanel = () => {
